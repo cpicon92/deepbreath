@@ -1,0 +1,34 @@
+body {
+    background: #6f9be2;
+}
+circle {
+    position: fixed;
+    top: 0;
+    left: 45vw;
+    width: 10vw;
+    height: 10vw;
+    border: 1.7vw solid white;
+    border-radius: 10vw;
+}
+svg {
+    height: 86.6vh; /* 100 - 10 = 90; 90 - 2 * 1.7 = 86.6; */
+    width: 100.1vw;
+    left: -200vw;
+    top: 6.7vh;
+    position: fixed;
+}
+svg path {
+    fill: none;
+    stroke: black;
+    stroke-width: 1vw;
+}
+@keyframes shift-curve-left {
+    0% {left: -50vw}
+    50% {left: -100vw}
+    50.1% {left: 100vw}
+    100% {left: 50vw}
+}
+@keyframes shift-curve-right {
+    from {left: 50vw}
+    to {left: -50vw}
+}
