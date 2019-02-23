@@ -19,8 +19,8 @@ init = function() {
     let keyframes = '@keyframes up-down {'
     + '0% {top: 0; transform: scale(1)} '
     + round(inH * 100) + '% {top: 0; transform: scale(1)} '
-    + round((inH + outB) * 100) + '% {top: calc(100vh - 10vw); transform: scale(0.7)} '
-    + round((inH + outB + outH) * 100) + '% {top: calc(100vh - 10vw); transform: scale(0.7)} '
+    + round((inH + outB) * 100) + '% {top: 90vh; transform: scale(0.7)} '
+    + round((inH + outB + outH) * 100) + '% {top: 90vh; transform: scale(0.7)} '
     + '100% {top: 0; transform: scale(1)}'
     + '}';
     //apply circle animation styles

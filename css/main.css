@@ -4,23 +4,23 @@ body {
 circle {
     position: fixed;
     top: 0;
-    left: 45vw;
-    width: 10vw;
-    height: 10vw;
-    border: 1.7vw solid white;
-    border-radius: 10vw;
+    left: calc(50vw - 5vh);
+    width: 10vh;
+    height: 10vh;
+    border: 1.7vh solid white;
+    border-radius: 10vh;
 }
 svg {
-    height: 86.6vh; /* 100 - 10 = 90; 90 - 2 * 1.7 = 86.6; */
+    height: 90vh; 
     width: 100.1vw;
     left: -200vw;
-    top: 6.7vh;
+    top: 5vh;
     position: fixed;
 }
 svg path {
     fill: none;
     stroke: black;
-    stroke-width: 1vw;
+    stroke-width: 1vh;
 }
 @keyframes shift-curve-left {
     0% {left: -50vw}
