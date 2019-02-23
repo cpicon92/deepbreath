@@ -11,9 +11,9 @@ circle {
     border-radius: 10vh;
 }
 svg {
-    height: 90vh; 
+    height: 90vh;
     width: 100.1vw;
-    left: -200vw;
+    left: 0;
     top: 5vh;
     position: fixed;
 }
@@ -21,14 +21,12 @@ svg path {
     fill: none;
     stroke: black;
     stroke-width: 1vh;
+    /* animation-name: shift-curve;
+    animation-duration: 7s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite; */
 }
-@keyframes shift-curve-left {
-    0% {left: -50vw}
-    50% {left: -100vw}
-    50.1% {left: 100vw}
-    100% {left: 50vw}
-}
-@keyframes shift-curve-right {
-    from {left: 50vw}
-    to {left: -50vw}
+@keyframes shift-curve {
+    from {transform: translateX(50%)}
+    to {transform: translateX(-50%)}
 }

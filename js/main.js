@@ -6,8 +6,7 @@ outHold = 0,
 init = function() {
     let stylesheet = document.getElementById('js-css'),
     circle = document.querySelector('circle'),
-    curveLeft = document.querySelector('.curve-left'),
-    curveRight = document.querySelector('.curve-right');
+    svg = document.querySelector('svg');
     //generate percentages
     let total = inBreath + inHold + outBreath + outHold,
     inH = inHold / total,
@@ -31,10 +30,8 @@ init = function() {
     +' C'+((inH + 0.5 * outB)*1000)+',10 '+((inH + 0.5 * outB)*1000)+',990 '+((inH+outB)*1000)+',990'
     +' H'+((inH + outB + outH)*1000)
     +' C'+((inH + outB + outH + 0.5 * inB) *1000)+',990 '+((inH + outB + outH + 0.5 * inB)*1000)+',10 1003,10';
-    curveRight.querySelector('path').setAttribute('d', d);
-    curveLeft.querySelector('path').setAttribute('d', d);
-    //path animation
-    curveRight.style.animation = 'shift-curve-right ' + total + 's linear 0s infinite';
-    curveLeft.style.animation = 'shift-curve-left ' + total + 's linear 0s infinite';
+    svg.querySelector('path').setAttribute('d', d);
+    //animate path
+    svg.querySelector('animateTransform').setAttribute('dur', total + 's');
 };
 window.addEventListener('load', init);

@@ -10,8 +10,16 @@
     <style id="js-css"></style>
 </head>
 <body>
-    <svg class="curve-left" height="100vh" width="100vw" preserveAspectRatio="none" viewbox="0 0 1000 1000"><path d="" /></svg>
-    <svg class="curve-right" height="100vh" width="100vw" preserveAspectRatio="none" viewbox="0 0 1000 1000"><path d="" /></svg>
+    <svg height="100vh" width="100vw" viewbox="0 0 2000 1000">
+        <defs>
+            <pattern id="curve-pattern" x="0" y="0" width="1000" height="1000" patternUnits="userSpaceOnUse" patternTransform>
+                <animateTransform attributeType="xml" attributeName="patternTransform" type="translateX"
+                from="0" to="-1000" begin="0" dur repeatCount="indefinite"/>
+                <path d="" />
+            </pattern>
+        </defs>
+        <rect x="0" y="0" width="2000" height="1000" fill="url(#curve-pattern)"/>
+    </svg>
     <circle></circle>
 </body>
 <script src="js/main.js"></script>
