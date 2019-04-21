@@ -80,17 +80,17 @@ let initPixi = function() {
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
     //fullscreen on click
-    document.documentElement.style.cursor = 'pointer';
-    document.documentElement.title = 'Click for fullscreen...';
-    let onClick = function(e) {
-        if (e.button) return;
-        if (document.fullscreenElement) {
-            document.exitFullscreen() ;
-        } else {
-            document.documentElement.requestFullscreen() ;
-        }
-    };
-    document.addEventListener("click", onClick);
-    document.addEventListener("touchend", onClick);
+    // document.documentElement.style.cursor = 'pointer';
+    // document.documentElement.title = 'Click for fullscreen...';
+    // let onClick = function(e) {
+    //     if (e.button) return;
+    //     if (document.fullscreenElement) {
+    //         document.exitFullscreen() ;
+    //     } else {
+    //         document.documentElement.requestFullscreen() ;
+    //     }
+    // };
+    // document.addEventListener("click", onClick);
+    // document.addEventListener("touchend", onClick);
 };
 window.addEventListener('load', initPixi);
