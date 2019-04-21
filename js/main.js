@@ -4,8 +4,7 @@ let inBreath = 4,
 inHold = 2,
 outBreath = 8,
 outHold = 0,
-humps = 2,
-vpad = 20;
+humps = 2;
 //generate percentages
 let total = inBreath + inHold + outBreath + outHold,
 inH = inHold / total,
@@ -22,6 +21,7 @@ let initPixi = function() {
     let lastT = 0,
     startTick = function(startT, appW, appH) {
         let appS = (appW + appH) / 2,
+        vpad = appH > 1.2 * appW ? 0.333 * appH : 0.1 * appH,
         graphW = (1 / humps) * appW,
         oneCurve = function(xoff) {
             if (inH) graph.lineTo(xoff + inH*graphW, vpad);
@@ -51,7 +51,7 @@ let initPixi = function() {
             //draw curve(s)
             graph.lineStyle(0.005 * appS, 0x000000, 1);
             graph.moveTo(0, vpad);
-            let t = (startT + elapsed / (total * 1000)) % 1,
+            let t = (startT + elapsed / (total * humps * 1000)) % 1,
             xoff = -(t % (1 / humps)) * appW;
             oneCurve(xoff);
             for (let i = 1; i <= humps; i++) {
@@ -71,11 +71,13 @@ let initPixi = function() {
     };
     let tick = startTick(0, window.innerWidth, window.innerHeight);
     app.ticker.add(tick);
-    window.addEventListener("resize", function() {
+    let onResize = function() {
         app.renderer.resize(window.innerWidth, window.innerHeight);
         app.ticker.remove(tick);
         tick = startTick(lastT, window.innerWidth, window.innerHeight);
         app.ticker.add(tick);
-    });
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
 };
 window.addEventListener('load', initPixi);
