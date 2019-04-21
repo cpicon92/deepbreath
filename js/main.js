@@ -83,7 +83,7 @@ let initPixi = function() {
     document.documentElement.style.cursor = 'pointer';
     document.documentElement.title = 'Click for fullscreen...';
     let onClick = function(e) {
-        if (e.button !== 0) return;
+        if (e.button) return;
         if (document.fullscreenElement) {
             document.exitFullscreen() ;
         } else {
@@ -91,6 +91,6 @@ let initPixi = function() {
         }
     };
     document.addEventListener("click", onClick);
-    document.addEventListener("touchend", onClick); 
+    document.addEventListener("touchend", onClick);
 };
 window.addEventListener('load', initPixi);
