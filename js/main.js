@@ -79,5 +79,16 @@ let initPixi = function() {
     };
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
+    //fullscreen on click
+    document.documentElement.style.cursor = 'pointer';
+    document.documentElement.title = 'Click for fullscreen...';
+    document.addEventListener("click", function(e) {
+        if (e.button !== 0) return;
+        if (document.fullscreenElement) {
+            document.exitFullscreen() ;
+        } else {
+            document.documentElement.requestFullscreen() ;
+        }
+    });
 };
 window.addEventListener('load', initPixi);
