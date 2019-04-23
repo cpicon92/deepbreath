@@ -23,26 +23,18 @@ let initPixi = function() {
         let appS = (appW + appH) / 2,
         vpad = appH > 1.2 * appW ? 0.333 * appH : 0.1 * appH,
         graphW = (1 / humps) * appW,
-        oneCurve = function(xoff) {
-            if (inH) graph.lineTo(xoff + inH*graphW, vpad);
-            graph.quadraticCurveTo(xoff + (inH + 0.25 * outB)*graphW, vpad, xoff + (inH+outB/2)*graphW, appH/2);
-            graph.quadraticCurveTo(xoff + (inH + 0.75 * outB)*graphW, appH-vpad, xoff + (inH+outB)*graphW, appH-vpad);
-            if (outH) graph.lineTo(xoff + (inH + outB + outH)*graphW, appH-vpad);
-            graph.quadraticCurveTo(xoff + (inH + outB + outH + 0.25 * inB) *graphW, appH-vpad, xoff + graphW - (graphW * inB / 2), appH/2);
-            graph.quadraticCurveTo(xoff + (inH + outB + outH + 0.75 * inB) *graphW, vpad, xoff + graphW, vpad);
+        curveResolution = Math.round(appS / 100) * 10,
+        drawBezier = function(start, cpStart, end, cpEnd) {
+            let inc = 1 / curveResolution;
+            for (let i = inc; i <= 1; i += inc) {
+                graph.lineTo(bezierX(i, start.x, cpStart.x, cpEnd.x, end.x), bezierY(i, start.y, cpStart.y, cpEnd.y, end.y));
+            }
         },
-        bezierY = function(i, y1, y2, y3, y4) {
-            //find y for point i from 0-1 on a bezier curve
-            //based on: https://stackoverflow.com/questions/37642168/how-to-convert-quadratic-bezier-curve-code-into-cubic-bezier-curve/37642695#37642695
-            let getPt = function(n1, n2, perc) {
-                return n1 + (n2 - n1) * perc;
-            },
-            ya = getPt(y1, y2, i),
-            yb = getPt(y2, y3, i),
-            yc = getPt(y3, y4, i),
-            ym = getPt(ya, yb, i),
-            yn = getPt(yb, yc, i);
-            return getPt(ym, yn, i);
+        drawCycle = function(xoff) {
+            if (inH) graph.lineTo(xoff + inH*graphW, vpad);
+            drawBezier({x: xoff + inH*graphW, y: vpad}, {x: xoff + (inH + 0.25 * outB)*graphW, y: vpad}, {x: xoff + (inH+outB)*graphW, y: appH-vpad}, {x: xoff + (inH + 0.75 * outB)*graphW, y: appH-vpad})
+            if (outH) graph.lineTo(xoff + (inH + outB + outH)*graphW, appH-vpad);
+            drawBezier({x: xoff + (inH + outB + outH)*graphW, y: appH-vpad}, {x: xoff + (inH + outB + outH + 0.25 * inB) *graphW, y: appH-vpad}, {x: xoff + graphW, y: vpad}, {x: xoff + (inH + outB + outH + 0.75 * inB) *graphW, y: vpad});
         };
         let elapsed = 0;
         return function() {
@@ -53,20 +45,20 @@ let initPixi = function() {
             graph.moveTo(0, vpad);
             let t = (startT + elapsed / (total * humps * 1000)) % 1,
             xoff = -(t % (1 / humps)) * appW;
-            oneCurve(xoff);
+            drawCycle(xoff);
             for (let i = 1; i <= humps; i++) {
-                oneCurve(xoff + graphW * i);
+                drawCycle(xoff + graphW * i);
             }
             lastT = t;
             //draw circle
             t = t * humps % 1;
             graph.lineStyle(0.007 * appS, 0xffffff, 1);
-            let circleY = 0;
-            if (t > inH && t < inH + outB) circleY = bezierY((t - inH) / outB, 0,0,1,1);
+            let circleY = vpad;
+            if (t > inH && t < inH + outB) circleY = bezierY((t - inH) / outB, vpad,vpad,appH - vpad, appH - vpad);
             if (t > inH + outB && t < inH + outB + outH) circleY = 1;
-            if (t > inH + outB + outH) circleY = bezierY(1 - (t - (inH + outB + outH)) / inB, 0,0,1,1);
-            let circleRadius = appS * 0.02 * (0.75 + 0.25 * (1 - circleY));
-            graph.drawCircle(appW / 2, vpad + circleY * (appH - vpad * 2), circleRadius);
+            if (t > inH + outB + outH) circleY = bezierY(1 - (t - (inH + outB + outH)) / inB, vpad,vpad,appH - vpad, appH - vpad);
+            let circleRadius = appS * 0.02 * (0.75 + 0.25 * (1 - (circleY / (appH - vpad * 2))));
+            graph.drawCircle(appW / 2, circleY, circleRadius);
         };
     };
     let tick = startTick(0, window.innerWidth, window.innerHeight);
@@ -94,3 +86,24 @@ let initPixi = function() {
     // document.addEventListener("touchend", onClick);
 };
 window.addEventListener('load', initPixi);
+//cubic bezier functions; 1 & 4 are endpoints, 2 & 3 are control points
+//based on: https://stackoverflow.com/questions/37642168/how-to-convert-quadratic-bezier-curve-code-into-cubic-bezier-curve/37642695#37642695
+let getPt = function(n1, n2, perc) {
+    return n1 + (n2 - n1) * perc;
+},
+bezierX = function(i, x1, x2, x3, x4) {
+    let xa = getPt( x1 , x2 , i ),
+    xb = getPt( x2 , x3 , i ),
+    xc = getPt( x3 , x4 , i ),
+    xm = getPt( xa , xb , i ),
+    xn = getPt( xb , xc , i );
+    return getPt( xm , xn , i );
+},
+bezierY = function(i, y1, y2, y3, y4) {
+    let ya = getPt(y1, y2, i),
+    yb = getPt(y2, y3, i),
+    yc = getPt(y3, y4, i),
+    ym = getPt(ya, yb, i),
+    yn = getPt(yb, yc, i);
+    return getPt(ym, yn, i);
+};
