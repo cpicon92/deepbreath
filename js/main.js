@@ -13,7 +13,7 @@ outH = outHold / total,
 inB = inBreath / total;
 //main app
 let initPixi = function() {
-    let app = new PIXI.Application(window.innerWidth, window.innerHeight, { resolution:2, autoResize:true, antialias: true, backgroundColor: 0x6f9be2 });
+    let app = new PIXI.Application(window.innerWidth, window.innerHeight, { resolution:1, autoResize:true, antialias: true, backgroundColor: 0x6f9be2 });
     document.body.appendChild(app.view);
     app.stage.interactive = true;
     let graph = new PIXI.Graphics();
@@ -24,19 +24,43 @@ let initPixi = function() {
         vpad = appH > 1.2 * appW ? 0.333 * appH : 0.1 * appH,
         graphW = (1 / humps) * appW,
         curveResolution = Math.round(appS / 100) * 10,
-        drawBezier = function(start, cpStart, end, cpEnd) {
-            let inc = 1 / curveResolution;
+        renderBezier = function(start, cpStart, end, cpEnd) {
+            let inc = 1 / curveResolution,
+			points = [];
             for (let i = inc; i <= 1; i += inc) {
-                graph.lineTo(bezierX(i, start.x, cpStart.x, cpEnd.x, end.x), bezierY(i, start.y, cpStart.y, cpEnd.y, end.y));
+                points.push({i: i, x: bezierX(i, start.x, cpStart.x, cpEnd.x, end.x), y: bezierY(i, start.y, cpStart.y, cpEnd.y, end.y)});
             }
+			return points;
         },
-        drawCycle = function(xoff) {
-            if (inH) graph.lineTo(xoff + inH*graphW, vpad);
-            drawBezier({x: xoff + inH*graphW, y: vpad}, {x: xoff + (inH + 0.25 * outB)*graphW, y: vpad}, {x: xoff + (inH+outB)*graphW, y: appH-vpad}, {x: xoff + (inH + 0.75 * outB)*graphW, y: appH-vpad})
-            if (outH) graph.lineTo(xoff + (inH + outB + outH)*graphW, appH-vpad);
-            drawBezier({x: xoff + (inH + outB + outH)*graphW, y: appH-vpad}, {x: xoff + (inH + outB + outH + 0.25 * inB) *graphW, y: appH-vpad}, {x: xoff + graphW, y: vpad}, {x: xoff + (inH + outB + outH + 0.75 * inB) *graphW, y: vpad});
-        };
-        let elapsed = 0;
+        renderCycle = function() {
+			let inc = 1 / curveResolution,
+			points = [];
+			if (inH) for (let i = inc; i <= 1; i += inc) {
+				points.push({i: inH * i, x: i * inH * graphW, y: vpad});
+			}
+            let outPoints = renderBezier({x: inH*graphW, y: vpad}, {x: (inH + 0.25 * outB)*graphW, y: vpad}, {x: (inH+outB)*graphW, y: appH-vpad}, {x: (inH + 0.75 * outB)*graphW, y: appH-vpad})
+            for (let i = 0; i < outPoints.length; i++) {
+				let p = outPoints[i];
+				points.push({i: inH + outB * p.i, x: p.x, y: p.y})
+			}
+			if (outH) for (let i = inc; i <= 1; i += inc) {
+				points.push({i: inH + outB + outH * i, x: (inH + outB + i * outH) * graphW, y: appH-vpad});
+			}
+            let inPoints = renderBezier({x: (inH + outB + outH)*graphW, y: appH-vpad}, {x: (inH + outB + outH + 0.25 * inB) *graphW, y: appH-vpad}, {x: graphW, y: vpad}, {x: (inH + outB + outH + 0.75 * inB) *graphW, y: vpad});
+        	for (let i = 0; i < inPoints.length; i++) {
+				let p = inPoints[i];
+				points.push({i: inH + outB + outH + inB * p.i, x: p.x, y: p.y})
+			}
+			return points;
+		},
+		cycle = renderCycle(),
+		drawCycle = function(xoff) {
+			for (let i = 0; i < cycle.length; i++) {
+				let p = cycle[i];
+				graph.lineTo(xoff + p.x, p.y);
+			}
+		},
+        elapsed = 0;
         return function() {
             elapsed += app.ticker.elapsedMS;
             graph.clear();
@@ -52,13 +76,22 @@ let initPixi = function() {
             lastT = t;
             //draw circle
             t = t * humps % 1;
-            graph.lineStyle(0.007 * appS, 0xffffff, 1);
+            graph.lineStyle(0.006 * appS, 0xffffff, 1);
             let circleY = vpad;
-            if (t > inH && t < inH + outB) circleY = bezierY((t - inH) / outB, vpad,vpad,appH - vpad, appH - vpad);
-            if (t > inH + outB && t < inH + outB + outH) circleY = 1;
-            if (t > inH + outB + outH) circleY = bezierY(1 - (t - (inH + outB + outH)) / inB, vpad,vpad,appH - vpad, appH - vpad);
-            let circleRadius = appS * 0.02 * (0.75 + 0.25 * (1 - (circleY / (appH - vpad * 2))));
-            graph.drawCircle(appW / 2, circleY, circleRadius);
+			let circleX = 0;
+			for (let i = 0; i < cycle.length; i++) {
+				let p = cycle[i];
+				if (p.i < t) continue;
+				let pp = cycle[i == 0 ? cycle.length - 1 : i - 1],
+				diffP = Math.abs(t - p.i),
+				diffPP = Math.abs(t - pp.i),
+				diffTot = diffP + diffPP;
+				circleY = (diffP/diffTot) * pp.y + (diffPP/diffTot) * p.y;
+				circleX = xoff + (diffP/diffTot) * pp.x + (diffPP/diffTot) * p.x;
+				break;
+			}
+            let circleRadius = appS * 0.015 * (0.75 + 0.25 * (1 - (circleY / (appH - vpad * 2))));
+            graph.drawCircle(appW / 2 + circleX, circleY, circleRadius);
         };
     };
     let tick = startTick(0, window.innerWidth, window.innerHeight);
@@ -71,19 +104,6 @@ let initPixi = function() {
     };
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
-    //fullscreen on click
-    // document.documentElement.style.cursor = 'pointer';
-    // document.documentElement.title = 'Click for fullscreen...';
-    // let onClick = function(e) {
-    //     if (e.button) return;
-    //     if (document.fullscreenElement) {
-    //         document.exitFullscreen() ;
-    //     } else {
-    //         document.documentElement.requestFullscreen() ;
-    //     }
-    // };
-    // document.addEventListener("click", onClick);
-    // document.addEventListener("touchend", onClick);
 };
 window.addEventListener('load', initPixi);
 //cubic bezier functions; 1 & 4 are endpoints, 2 & 3 are control points
