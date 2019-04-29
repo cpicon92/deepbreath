@@ -77,7 +77,7 @@ let initPixi = function() {
             t = t * humps % 1;
             graph.lineStyle(0.006 * appS, 0xffffff, 1);
             let circleY = vpad;
-			let circleX = 0;
+			let circleX = xoff + cycle[0].x;
 			for (let i = 0; i < cycle.length; i++) {
 				let p = cycle[i];
 				if (p.i < t) continue;
