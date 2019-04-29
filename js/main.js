@@ -13,7 +13,7 @@ outH = outHold / total,
 inB = inBreath / total;
 //main app
 let initPixi = function() {
-    let app = new PIXI.Application(window.innerWidth, window.innerHeight, { resolution:window.devicePixelRatio, autoResize:true, antialias: true, backgroundColor: 0x6f9be2 });
+    let app = new PIXI.Application(window.innerWidth, window.innerHeight, { resolution:window.devicePixelRatio, autoResize:false, antialias: true, backgroundColor: 0x6f9be2 });
     document.body.appendChild(app.view);
     app.stage.interactive = true;
     let graph = new PIXI.Graphics();
