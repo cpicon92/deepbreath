@@ -68,9 +68,8 @@ let initPixi = function() {
             graph.lineStyle(0.005 * appS, 0x000000, 1);
             graph.moveTo(0, vpad);
             let t = (startT + elapsed / (total * humps * 1000)) % 1,
-            xoff = -(t % (1 / humps)) * appW;
-            drawCycle(xoff);
-            for (let i = 1; i <= humps; i++) {
+            xoff = -(t % (1 / humps)) * appW + appW / 2;
+            for (let i = Math.floor(-humps/2); i <= Math.ceil(humps/2); i++) {
                 drawCycle(xoff + graphW * i);
             }
             lastT = t;
@@ -91,7 +90,7 @@ let initPixi = function() {
 				break;
 			}
             let circleRadius = appS * 0.015 * (0.75 + 0.25 * (1 - (circleY / (appH - vpad * 2))));
-            graph.drawCircle(appW / 2 + circleX, circleY, circleRadius);
+            graph.drawCircle(circleX, circleY, circleRadius);
         };
     };
     let tick = startTick(0, window.innerWidth, window.innerHeight);
