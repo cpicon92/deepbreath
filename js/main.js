@@ -77,16 +77,17 @@ let initPixi = function() {
             t = t * humps % 1;
             graph.lineStyle(0.006 * appS, 0xffffff, 1);
             let circleY = vpad;
-			let circleX = xoff + cycle[0].x;
+			let circleX = appW / 2;
 			for (let i = 0; i < cycle.length; i++) {
 				let p = cycle[i];
 				if (p.i < t) continue;
-				let pp = cycle[i == 0 ? cycle.length - 1 : i - 1],
+				let pp = cycle[i == 0 ? i : i - 1],
 				diffP = Math.abs(t - p.i),
 				diffPP = Math.abs(t - pp.i),
 				diffTot = diffP + diffPP;
 				circleY = (diffP/diffTot) * pp.y + (diffPP/diffTot) * p.y;
 				circleX = xoff + (diffP/diffTot) * pp.x + (diffPP/diffTot) * p.x;
+				if (circleY === vpad || circleY === appH - vpad) circleX = appW / 2;
 				break;
 			}
             let circleRadius = appS * 0.015 * (0.75 + 0.25 * (1 - (circleY / (appH - vpad * 2))));
